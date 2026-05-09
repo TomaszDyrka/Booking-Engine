@@ -10,3 +10,8 @@ wheels/
 # Virtual environments
 .venv
 uv.lock
+pyrightconfig.json
+
+# Database stuff
+.pgpass
+.pg_service.conf
