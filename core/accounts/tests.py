@@ -7,55 +7,59 @@ from django.db.utils import IntegrityError
 
 @pytest.fixture
 def user_st(db):
-    """ Test Standard account """
+    """Test Standard account"""
 
     Account = get_user_model()
     acc = Account.objects.create_user(
-            email="test@user.com",
-            first_name="John",
-            last_name="Doe",
-            password="foo",
-            pesel="12312312311",
-            )
+        email="test@user.com",
+        first_name="John",
+        last_name="Doe",
+        password="foo",
+        pesel="12312312311",
+    )
 
     return acc
+
 
 @pytest.fixture
 def user_ad(db):
-    """ Test Administrator account """
+    """Test Administrator account"""
 
     Account = get_user_model()
     acc = Account.objects.create_superuser(
-            email="test@admin.com",
-            first_name="John",
-            last_name="Doe",
-            password="foo",
-            pesel="12312312312",
-            )
-    
+        email="test@admin.com",
+        first_name="John",
+        last_name="Doe",
+        password="foo",
+        pesel="12312312312",
+    )
+
     return acc
+
 
 @pytest.fixture
 def user_md(db):
-    """ Test Moderator account """
+    """Test Moderator account"""
 
     Account = get_user_model()
     acc = Account.objects.create_moderator(
-            email="test@mod.com",
-            first_name="John",
-            last_name="Doe",
-            password="foo",
-            pesel="12312312313",
-            )
-    
+        email="test@mod.com",
+        first_name="John",
+        last_name="Doe",
+        password="foo",
+        pesel="12312312313",
+    )
+
     return acc
 
+
+@pytest.mark.accounts
 @pytest.mark.django_db
-class TestAccount():
-    """ tests different user creations scenarios """
+class TestAccount:
+    """tests different user creations scenarios"""
 
     def test_create_standard_user(self, user_st):
-        """ tests creating standard user account """
+        """tests creating standard user account"""
 
         Account = get_user_model()
 
@@ -113,7 +117,7 @@ class TestAccount():
             )
 
     def test_create_superuser(self, user_ad):
-        """ tests creating super user """
+        """tests creating super user"""
 
         Account = get_user_model()
 
@@ -131,14 +135,14 @@ class TestAccount():
 
         with pytest.raises(ValueError):
             Account.objects.create_superuser(
-                    email="super@user.io",
-                    password="foo",
-                    pesel="20020020011",
-                    is_superuser=False,
-                    )
+                email="super@user.io",
+                password="foo",
+                pesel="20020020011",
+                is_superuser=False,
+            )
 
     def test_create_moderator(self, user_md):
-        """ tests creating moderator """
+        """tests creating moderator"""
 
         Account = get_user_model()
 
@@ -152,14 +156,14 @@ class TestAccount():
 
         with pytest.raises(ValueError):
             Account.objects.create_moderator(
-                    email="test@mod.io",
-                    password="Foo",
-                    pesel="34534534512",
-                    is_superuser=True,
-                    )
+                email="test@mod.io",
+                password="Foo",
+                pesel="34534534512",
+                is_superuser=True,
+            )
 
     def test_check_duplicate(self, user_st):
-        """ tests catching duplicate emails when creating accounts """
+        """tests catching duplicate emails when creating accounts"""
 
         Account = get_user_model()
 
@@ -171,13 +175,13 @@ class TestAccount():
                 last_name="Doe",
                 password="foo",
                 pesel="12312312344",
-                )
+            )
 
     def test_check_duplicate2(self, user_st):
-        """ tests catching duplicate pesels when creating accounts """
+        """tests catching duplicate pesels when creating accounts"""
 
         Account = get_user_model()
-        
+
         with pytest.raises(IntegrityError):
             Account.objects.create_user(
                 email="test@user.io",
@@ -185,10 +189,10 @@ class TestAccount():
                 last_name="Doe",
                 password="foo",
                 pesel="12312312311",
-                )
+            )
 
     def test_check_groups(self, user_st, user_ad, user_md):
-        """ tests assigining groups to users during creation process """
+        """tests assigining groups to users during creation process"""
 
         Account = get_user_model()
         # Account = Acc()
@@ -206,23 +210,23 @@ class TestAccount():
         assert user_md.is_moderator is True
 
     def test_check_group_permissions(self, user_st, user_ad, user_md):
-        """ tests correct permissions for users """
+        """tests correct permissions for users"""
 
         perms_st = user_st.get_all_permissions()
         perms_ad = user_ad.get_all_permissions()
         perms_md = user_md.get_all_permissions()
 
         for perm in perms_st:
-            _, perm = perm.split('.')
+            _, perm = perm.split(".")
 
             assert perm.startswith("view_")
 
         for perm in perms_ad:
-            _, perm = perm.split('.')
+            _, perm = perm.split(".")
 
             assert perm.startswith(("view_", "change_", "add_", "delete_"))
 
         for perm in perms_md:
-            _, perm = perm.split('.')
+            _, perm = perm.split(".")
 
             assert perm.startswith(("view_", "change_"))

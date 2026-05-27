@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 
 Account = get_user_model()
 
+
 class Command(BaseCommand):
     help = "Creates moderator account"
 
@@ -15,7 +16,7 @@ class Command(BaseCommand):
             # email
             while True:
                 try:
-                    email = input('Email address: ')
+                    email = input("Email address: ")
                     validate_email(email)
                     break
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
             # pesel
             while True:
                 try:
-                    pesel = input('Pesel: ')
+                    pesel = input("Pesel: ")
                     if not re.match(r"^\d{11}$", pesel):
                         raise ValueError
                     break
@@ -34,17 +35,19 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR("PESEL has to have 11 digits!"))
 
             # password
-            while True: 
+            while True:
                 try:
-                    password = getpass.getpass('Password: ')
-                    password_confirm = getpass.getpass('Password (again): ')
-                    
-                    assert(password == password_confirm)
+                    password = getpass.getpass("Password: ")
+                    password_confirm = getpass.getpass("Password (again): ")
+
+                    assert password == password_confirm
                     break
 
                 except AssertionError:
-                    self.stdout.write(self.style.ERROR("Error: Your passwords didn't match"))
- 
+                    self.stdout.write(
+                        self.style.ERROR("Error: Your passwords didn't match")
+                    )
+
         except (KeyboardInterrupt, EOFError):
             self.stdout.write(self.style.ERROR("\nOperation cancelled."))
             return
@@ -55,7 +58,7 @@ class Command(BaseCommand):
                 pesel=pesel,
                 password=password,
             )
-            self.stdout.write(self.style.SUCCESS('\nModerator created successfully'))
-            
+            self.stdout.write(self.style.SUCCESS("\nModerator created successfully"))
+
         except ValueError as e:
-            raise CommandError(f'Value Error: {e}')
+            raise CommandError(f"Value Error: {e}")

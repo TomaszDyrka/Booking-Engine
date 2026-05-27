@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
+
 def make_groups(sender, **kwagrs):
     from django.contrib.auth.models import Group, Permission
 
@@ -10,7 +11,7 @@ def make_groups(sender, **kwagrs):
 
     except Group.DoesNotExist:
         group = Group.objects.create(name="Administrators")
-        perms = Permission.objects.filter(codename__regex=r'^(view|change|add|delete)_')
+        perms = Permission.objects.filter(codename__regex=r"^(view|change|add|delete)_")
         group.permissions.set(perms)
 
     # MODERATOR
@@ -19,7 +20,7 @@ def make_groups(sender, **kwagrs):
 
     except Group.DoesNotExist:
         group = Group.objects.create(name="Moderators")
-        perms = Permission.objects.filter(codename__regex=r'^(view|change)_')
+        perms = Permission.objects.filter(codename__regex=r"^(view|change)_")
         group.permissions.set(perms)
 
     # STANDARD
@@ -31,8 +32,9 @@ def make_groups(sender, **kwagrs):
         perms = Permission.objects.filter(codename__startswith="view_")
         group.permissions.set(perms)
 
+
 class AccountsConfig(AppConfig):
-    name = 'accounts'
+    name = "accounts"
 
     def ready(self):
         post_migrate.connect(make_groups, sender=self)

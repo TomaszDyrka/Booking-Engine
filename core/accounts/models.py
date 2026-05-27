@@ -4,31 +4,33 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.core.validators import RegexValidator, EmailValidator
 from django.utils.translation import gettext_lazy as _
 from django.db import models
-from enum import Enum, auto, unique
 import re
 
 
 class AccountManager(BaseUserManager):
     def check_admin_options(
-            self,
-            expected_superuser: bool,
-            **fields,
-            ):
-        """ Checks if account is suitable for staff roles (admin and moderator)"""
+        self,
+        expected_superuser: bool,
+        **fields,
+    ):
+        """Checks if account is suitable for staff roles (admin and moderator)"""
 
         if fields.get("is_staff") is not True:
             raise ValueError("'is_staff' should be set to True")
         if fields.get("is_superuser") is not expected_superuser:
-            raise ValueError(f"'is_superuser' should be set to {expected_superuser}, but is {fields.get('is_superuser')}")  # noqa: E501
+            raise ValueError(
+                f"'is_superuser' should be set to {expected_superuser}, but is {fields.get('is_superuser')}"
+            )  # noqa: E501
         if fields.get("is_active") is not True:
             raise ValueError("'is_active' should be set to True")
 
     def check_required_fields(
-            self,
-            email: str,
-            pesel: str,
-            password: str,):
-        """ Checks if required fields are provided """
+        self,
+        email: str,
+        pesel: str,
+        password: str,
+    ):
+        """Checks if required fields are provided"""
 
         if not email:
             raise ValueError("No email provided!")
@@ -60,12 +62,13 @@ class AccountManager(BaseUserManager):
         # raise ValueError("Password must contain at least 8 characters")
 
     def create_user(
-            self,
-            email: str,
-            pesel: str,
-            password: str,
-            **fields,):
-        """ Creates and saves standard user """
+        self,
+        email: str,
+        pesel: str,
+        password: str,
+        **fields,
+    ):
+        """Creates and saves standard user"""
 
         self.check_required_fields(email, pesel, password)
 
@@ -76,7 +79,7 @@ class AccountManager(BaseUserManager):
         try:
             grp = Group.objects.get(name=fields.get("type"))
         except Group.DoesNotExist:
-            raise ValueError(f"Group {fields.get("type")} does not exist!")
+            raise ValueError(f"Group {fields.get('type')} does not exist!")
 
         user.set_password(password)
         user.save()
@@ -86,12 +89,13 @@ class AccountManager(BaseUserManager):
         return user
 
     def create_superuser(
-            self,
-            email: str,
-            pesel: str,
-            password: str,
-            **fields,):
-        """ Creates and saves superuser """
+        self,
+        email: str,
+        pesel: str,
+        password: str,
+        **fields,
+    ):
+        """Creates and saves superuser"""
 
         fields.setdefault("is_staff", True)
         fields.setdefault("is_superuser", True)
@@ -103,12 +107,13 @@ class AccountManager(BaseUserManager):
         return self.create_user(email, pesel, password, **fields)
 
     def create_moderator(
-            self,
-            email: str,
-            pesel: str,
-            password: str,
-            **fields,):
-        """ Creates and saves moderator """
+        self,
+        email: str,
+        pesel: str,
+        password: str,
+        **fields,
+    ):
+        """Creates and saves moderator"""
 
         self.check_required_fields(email, pesel, password)
 
@@ -130,39 +135,43 @@ class Account(AbstractUser):
 
     username = None
     email = models.EmailField(
-                    verbose_name=_("Email address"),
-                    max_length=255,
-                    unique=True,
-                    validators=[EmailValidator(
-                        message=_("Provided email is not valid!"),
-                        )],
-                    )
+        verbose_name=_("Email address"),
+        max_length=255,
+        unique=True,
+        validators=[
+            EmailValidator(
+                message=_("Provided email is not valid!"),
+            )
+        ],
+    )
 
     first_name = models.CharField(
-                    verbose_name=_("First name"),
-                    max_length=255,
-                    )
+        verbose_name=_("First name"),
+        max_length=255,
+    )
 
     last_name = models.CharField(
-                    verbose_name=_("Last name"),
-                    max_length=255,
-                    )
+        verbose_name=_("Last name"),
+        max_length=255,
+    )
 
     pesel = models.CharField(
-                    verbose_name=_("Pesel"),
-                    unique=True,
-                    validators=[RegexValidator(
-                        regex=r'^\d{11}$',
-                        message=_('PESEL has to have 11 digits!'),
-                        )],
-                    )
+        verbose_name=_("Pesel"),
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r"^\d{11}$",
+                message=_("PESEL has to have 11 digits!"),
+            )
+        ],
+    )
 
     type = models.CharField(
-                    verbose_name=_("Account type"),
-                    max_length=255,
-                    choices=AccountType,
-                    default=AccountType.STANDARD,
-                    )
+        verbose_name=_("Account type"),
+        max_length=255,
+        choices=AccountType,
+        default=AccountType.STANDARD,
+    )
 
     creation_date = models.DateField(auto_now_add=True)
 
@@ -171,7 +180,7 @@ class Account(AbstractUser):
 
     objects = AccountManager()
 
-    class Meta():
+    class Meta:
         verbose_name = "account"
         verbose_name_plural = "accounts"
         abstract = False
