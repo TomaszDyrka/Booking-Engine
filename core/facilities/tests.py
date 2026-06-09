@@ -146,3 +146,8 @@ class TestModels:
             )
 
             dupe.full_clean()
+
+    def test_room_city(self, def_room):
+        """tests if room correctly knows the city it is within"""
+
+        assert def_room.city == def_room.building.city
