@@ -4,29 +4,6 @@ from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 
 
-@pytest.fixture
-def def_building():
-    return Building.objects.create(
-        name="Main Building",
-        city="Cracow",
-        street="Wroclawska",
-        number="10",
-        postal_code="23-412",
-    )
-
-
-@pytest.fixture
-def def_room(def_building):
-    return Room.objects.create(
-        building=def_building,
-        section="A",
-        number="13",
-        type=Room.RoomType.CLASSROOM,
-        size=Room.RoomSize.LARGE,
-        price=Room.RoomPrice.HIGH,
-    )
-
-
 @pytest.mark.facilities
 @pytest.mark.django_db
 class TestModels:

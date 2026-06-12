@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Nowa Rezerwacja</title>
+</head>
+<body>
+    <h1>Zarezerwuj salę</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div style="color: red;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        
+        {{ form.as_p }}
+        
+        <button type="submit">Zapisz rezerwację</button>
+    </form>
+</body>
+</html>
