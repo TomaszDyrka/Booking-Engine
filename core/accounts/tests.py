@@ -5,54 +5,6 @@ from django.db.utils import IntegrityError
 # from psycopg.errors import UniqueViolation
 
 
-@pytest.fixture
-def user_st(db):
-    """Test Standard account"""
-
-    Account = get_user_model()
-    acc = Account.objects.create_user(
-        email="test@user.com",
-        first_name="John",
-        last_name="Doe",
-        password="foo",
-        pesel="12312312311",
-    )
-
-    return acc
-
-
-@pytest.fixture
-def user_ad(db):
-    """Test Administrator account"""
-
-    Account = get_user_model()
-    acc = Account.objects.create_superuser(
-        email="test@admin.com",
-        first_name="John",
-        last_name="Doe",
-        password="foo",
-        pesel="12312312312",
-    )
-
-    return acc
-
-
-@pytest.fixture
-def user_md(db):
-    """Test Moderator account"""
-
-    Account = get_user_model()
-    acc = Account.objects.create_moderator(
-        email="test@mod.com",
-        first_name="John",
-        last_name="Doe",
-        password="foo",
-        pesel="12312312313",
-    )
-
-    return acc
-
-
 @pytest.mark.accounts
 @pytest.mark.django_db
 class TestAccount:

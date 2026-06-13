@@ -1,7 +1,7 @@
 import pytest
-import datetime
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth import get_user_model
-from accounts.models import Account
 from facilities.models import Building, Room
 from reservations.models import Reservation
 
@@ -47,7 +47,7 @@ def user_md(db):
         email="test@mod.com",
         first_name="John",
         last_name="Doe",
-        password="foo",
+        password="foo",        
         pesel="12312312313",
     )
 
@@ -76,6 +76,16 @@ def def_room(db, def_building):
         price=Room.RoomPrice.HIGH,
     )
 
+@pytest.fixture
+def def_room_2(db, def_building):
+    return Room.objects.create(
+        building=def_building,
+        section="B",
+        number="20",
+        type=Room.RoomType.CLASSROOM,
+        size=Room.RoomSize.LARGE,
+        price=Room.RoomPrice.HIGH,
+    )
 
 @pytest.fixture
 def def_reservation(db, def_room, user_st):
@@ -83,6 +93,30 @@ def def_reservation(db, def_room, user_st):
         room=def_room,
         account=user_st,
         # year, month, day, hour, minute
-        start_date=datetime.datetime(2050, 1, 20, 10, 0),
-        end_date=datetime.datetime(2050, 1, 20, 12, 30),
+        start_date=timezone.now() + timedelta(days=5),
+        end_date=timezone.now() + timedelta(days=5, hours=2, minutes= 30),
     )
+
+@pytest.fixture
+def def_reservation_2(db, def_room, user_md):
+    return Reservation.objects.create(
+        room=def_room,
+        account=user_md,
+        # year, month, day, hour, minute
+        start_date=timezone.now() + timedelta(days=6),
+        end_date=timezone.now() + timedelta(days=6, hours=2, minutes= 30),
+    )
+
+@pytest.fixture
+def def_reservation_3(db, def_room_2, user_md):
+    return Reservation.objects.create(
+        room=def_room_2,
+        account=user_md,
+        # year, month, day, hour, minute
+        start_date=timezone.now() + timedelta(days=6),
+        end_date=timezone.now() + timedelta(days=6, hours=2, minutes=30),
+    )
+
+@pytest.fixture
+def def_three_reservs(def_reservation, def_reservation_2, def_reservation_3):
+    pass

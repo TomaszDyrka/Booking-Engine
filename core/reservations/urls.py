@@ -1,20 +1,18 @@
 from django.urls import path
-from .views import ReservationCreateView, ReservationsEventsAPIView, RoomDetailView
+from .views import ReservationsEventsAPIView, RoomDetailView, RoomListView
 
 
 urlpatterns = [
-    # Path to creation form
-    path(
-        "nowa/<int:room_id>/", ReservationCreateView.as_view(), name="reservation_create"
-    ),
-
     # For getting reservations
     path(
-        "api/reservations/<int:room_id>/",
+        "api/reservations/",
         ReservationsEventsAPIView.as_view(),
         name="api_reservations",
     ),
     
-    # New 'calendar'
+    # Calendar full suite
     path("room/<int:pk>/", RoomDetailView.as_view(), name="room_detail"),
+
+    # Room view/Main page
+    path("", RoomListView.as_view(), name="home"),
 ]
