@@ -161,15 +161,17 @@ class Account(AbstractUser):
     # I decided that I will use default django cryptography
     # encryption, so I removed 'unique' constrain, as it will now
     # be possible for the encrypted value to be repeated
-    pesel = encrypt(models.CharField(
-        verbose_name=_("Pesel"),
-        validators=[
-            RegexValidator(
-                regex=r"^\d{11}$",
-                message=_("PESEL has to have 11 digits!"),
-            )
-        ],
-    ))
+    pesel = encrypt(
+        models.CharField(
+            verbose_name=_("Pesel"),
+            validators=[
+                RegexValidator(
+                    regex=r"^\d{11}$",
+                    message=_("PESEL has to have 11 digits!"),
+                )
+            ],
+        )
+    )
 
     # 'unique' constrain is moved, however, to the hash, as
     # sha-256 is not susceptible to being repeated
@@ -200,11 +202,10 @@ class Account(AbstractUser):
         verbose_name_plural = "accounts"
         abstract = False
 
-
     def save(self, *args, **kwargs):
         if self.pesel:
             salted_pesel = f"{settings.SECRET_KEY}{self.pesel}"
-            self.pesel_hash = hashlib.sha256(salted_pesel.encode('utf-8')).hexdigest()
+            self.pesel_hash = hashlib.sha256(salted_pesel.encode("utf-8")).hexdigest()
 
         super().save(*args, **kwargs)
 

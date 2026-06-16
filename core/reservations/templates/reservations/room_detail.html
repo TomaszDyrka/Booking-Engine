@@ -3,6 +3,12 @@
 {% block title %}Room: {{ room }} - Calendar{% endblock %}
 
 {% block content %}
+<style>
+    #reservationForm .errorlist {
+        display: none !important;
+    }
+</style>
+
 <div class="row mt-3">
     <div class="col-md-12">
         {% if messages %}
@@ -47,7 +53,7 @@
                     {% csrf_token %}
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger shadow-sm">
-                            <h6 class="alert-heading fw-bold">Odrzucono przez serwer:</h6>
+                            <h6 class="alert-heading fw-bold">Rejected by the server:</h6>
                             <ul class="mb-0">
                                 {% for error in form.non_field_errors %}
                                     <li>{{ error }}</li>
@@ -55,19 +61,6 @@
                             </ul>
                         </div>
                     {% endif %}
-
-                    {% for field in form %}
-                        {% if field.errors %}
-                            <div class="alert alert-warning py-2 px-3 shadow-sm mb-2">
-                                <strong>{{ field.label }}:</strong>
-                                <ul class="mb-0 ps-3">
-                                    {% for error in field.errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
 
                     {{ form.as_p }}
                     
@@ -94,6 +87,19 @@
         {% if form.errors %}
             bootstrapModal.show();
         {% endif %}
+        
+        // NOWOŚĆ: Czyszczenie modala przy zamykaniu
+        var modalElement = document.getElementById('reservationModal');
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            // Usuwamy powiadomienia o błędach z wnętrza formularza
+            let alerts = document.querySelectorAll('#reservationForm .alert');
+            alerts.forEach(function(alert) {
+                alert.remove();
+            });
+            
+            // Resetujemy wartości w polach formularza
+            document.getElementById('reservationForm').reset();
+        });
         
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'timeGridWeek', 

@@ -47,7 +47,7 @@ def user_md(db):
         email="test@mod.com",
         first_name="John",
         last_name="Doe",
-        password="foo",        
+        password="foo",
         pesel="12312312313",
     )
 
@@ -76,6 +76,7 @@ def def_room(db, def_building):
         price=Room.RoomPrice.HIGH,
     )
 
+
 @pytest.fixture
 def def_room_2(db, def_building):
     return Room.objects.create(
@@ -87,6 +88,7 @@ def def_room_2(db, def_building):
         price=Room.RoomPrice.HIGH,
     )
 
+
 @pytest.fixture
 def def_reservation(db, def_room, user_st):
     return Reservation.objects.create(
@@ -94,8 +96,9 @@ def def_reservation(db, def_room, user_st):
         account=user_st,
         # year, month, day, hour, minute
         start_date=timezone.now() + timedelta(days=5),
-        end_date=timezone.now() + timedelta(days=5, hours=2, minutes= 30),
+        end_date=timezone.now() + timedelta(days=5, hours=2, minutes=30),
     )
+
 
 @pytest.fixture
 def def_reservation_2(db, def_room, user_md):
@@ -104,8 +107,9 @@ def def_reservation_2(db, def_room, user_md):
         account=user_md,
         # year, month, day, hour, minute
         start_date=timezone.now() + timedelta(days=6),
-        end_date=timezone.now() + timedelta(days=6, hours=2, minutes= 30),
+        end_date=timezone.now() + timedelta(days=6, hours=2, minutes=30),
     )
+
 
 @pytest.fixture
 def def_reservation_3(db, def_room_2, user_md):
@@ -116,6 +120,7 @@ def def_reservation_3(db, def_room_2, user_md):
         start_date=timezone.now() + timedelta(days=6),
         end_date=timezone.now() + timedelta(days=6, hours=2, minutes=30),
     )
+
 
 @pytest.fixture
 def def_three_reservs(def_reservation, def_reservation_2, def_reservation_3):

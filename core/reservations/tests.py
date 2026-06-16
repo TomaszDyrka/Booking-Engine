@@ -14,10 +14,10 @@ class TestReservation:
     def test_creation(self, def_reservation, def_room, user_st):
         assert def_reservation.room == def_room
         assert def_reservation.account == user_st
-        
+
         expected_start = timezone.now() + datetime.timedelta(days=5)
         expected_end = timezone.now() + datetime.timedelta(days=5, hours=2, minutes=30)
-        
+
         assert abs((def_reservation.start_date - expected_start).total_seconds()) < 2
         assert abs((def_reservation.end_date - expected_end).total_seconds()) < 2
 
@@ -69,7 +69,7 @@ class TestReservationViews:
     def test_reservation_all(self, client, def_three_reservs):
         """tests if all reservations are returned"""
 
-        url = reverse('api_reservations')
+        url = reverse("api_reservations")
 
         response = client.get(url)
         assert response.status_code == 200
@@ -80,7 +80,7 @@ class TestReservationViews:
     def test_reservation_room(self, client, def_room, def_three_reservs):
         """tests if all reservations are returned"""
 
-        url = reverse('api_reservations')
+        url = reverse("api_reservations")
 
         response_without_acc = client.get(url, data={"room_id": def_room.id})
         assert response_without_acc.status_code == 200
@@ -88,23 +88,29 @@ class TestReservationViews:
         data = response_without_acc.json()
         assert len(data) == 2
 
-    def test_reservation_room_acc(self, client, def_reservation, def_three_reservs, def_room, user_st, user_ad):
+    def test_reservation_room_acc(
+        self, client, def_reservation, def_three_reservs, def_room, user_st, user_ad
+    ):
         """tests more advanced API compatibility"""
 
-        # first we check if for account that has data 
-        url = reverse('api_reservations')
+        # first we check if for account that has data
+        url = reverse("api_reservations")
 
-        response_correct_acc = client.get(url, data={"room_id": def_room.id, "account_id": user_st.id})
+        response_correct_acc = client.get(
+            url, data={"room_id": def_room.id, "account_id": user_st.id}
+        )
 
         assert response_correct_acc.status_code == 200
         data_recived = response_correct_acc.json()
 
-        assert data_recived[0]['title'] == f"{str(def_reservation.account)}"
-        assert data_recived[0]['start'] == def_reservation.start_date.isoformat()
-        assert data_recived[0]['end'] == def_reservation.end_date.isoformat()
+        assert data_recived[0]["title"] == f"{str(def_reservation.account)}"
+        assert data_recived[0]["start"] == def_reservation.start_date.isoformat()
+        assert data_recived[0]["end"] == def_reservation.end_date.isoformat()
 
         # next we check account that has not made any reservations
-        response_incorrect_acc = client.get(url, data={"room_id": def_room.id, "account_id": user_ad.id})
+        response_incorrect_acc = client.get(
+            url, data={"room_id": def_room.id, "account_id": user_ad.id}
+        )
         assert response_incorrect_acc.status_code == 200
 
         data = response_incorrect_acc.json()

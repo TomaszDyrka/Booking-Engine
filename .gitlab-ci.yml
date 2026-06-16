@@ -1,0 +1,28 @@
+stages:
+  - build
+  - test
+
+build-test-job:
+  stage: build
+  script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+    - docker build --target test -t ${CI_REGISTRY_IMAGE} .
+    - docker push ${CI_REGISTRY_IMAGE}
+
+test-job:
+  stage: test
+  environment: test
+  needs: ["build-test-job"]
+  image: ${CI_REGISTRY_IMAGE}
+  services:
+    - name: postgres:17.10
+      alias: db-postgres
+  variables:
+    POSTGRES_DB: "${DJANGO_DB_NAME}"
+    POSTGRES_USER: "${DJANGO_DB_USER}"
+    POSTGRES_PASSWORD: "${DJANGO_DB_PASSWORD}"
+  script:
+    - uv run python -m pytest core/
+    - uv run ruff format --check core/
+    - uv run ruff check core/
+

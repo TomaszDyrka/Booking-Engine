@@ -19,10 +19,10 @@ class RoomDetailView(DetailView):
 
     model = Room
     template_name = "reservations/room_detail.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if 'form' not in context:
+        if "form" not in context:
             context["form"] = ReservationForm(instance=Reservation(room=self.object))
 
         return context
@@ -35,14 +35,13 @@ class RoomDetailView(DetailView):
             return self.render_to_response(self.get_context_data(), status=400)
 
         form = ReservationForm(
-            request.POST, 
-            instance=Reservation(room=self.object, account=request.user)
+            request.POST, instance=Reservation(room=self.object, account=request.user)
         )
-        
+
         if form.is_valid():
             form.save()
             messages.success(request, "Reservation has been added!")
-            return redirect('room_detail', pk=self.object.pk)
+            return redirect("room_detail", pk=self.object.pk)
         else:
             # I have written some error explainations in model class, so why not use them here
             if form.non_field_errors():
@@ -50,11 +49,15 @@ class RoomDetailView(DetailView):
                     messages.error(request, error)
 
             else:
-                messages.error(request, "Something went wrong! Be sure you have put everything correctly.")
+                messages.error(
+                    request,
+                    "Something went wrong! Be sure you have put everything correctly.",
+                )
 
             return self.render_to_response(self.get_context_data(form=form), status=400)
 
         return self.render_to_response(self.get_context_data(form=form))
+
 
 class RoomListView(ListView):
     model = Room

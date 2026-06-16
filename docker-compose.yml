@@ -1,0 +1,29 @@
+# only for local use, as it doesn't have
+# .env files passed in secrets!!!
+name: BookingEngine
+
+services:
+  backend:
+    image: django_app
+    depends_on:
+      - database
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    env_file:
+      # - path: .env/.env_db ~  not used since there are different
+      #   required: true        environmental variables name
+      #                         TODO: fix it so they would be the same
+      - path: .env/.env_backend
+        required: true
+    volumes:
+      - .:/app
+    command: sleep infinity
+      #- uv run python core/manage.py runserver
+  database:
+    image: postgres:17.10
+    env_file: 
+      - path: .env/.env_db
+        required: true
+

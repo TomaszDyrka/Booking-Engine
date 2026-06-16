@@ -52,7 +52,9 @@ class Reservation(models.Model):
         time_now = timezone.now()
 
         if self.start_date < time_now or self.end_date < time_now:
-            raise ValidationError(_("Start date and start date should not be in the past!"))
+            raise ValidationError(
+                _("Start date and start date should not be in the past!")
+            )
 
         if self.start_date >= self.end_date:
             raise ValidationError(_("End date should be later than start date"))
