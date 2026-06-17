@@ -34,7 +34,7 @@ test-job:
     POSTGRES_DB: "${DJANGO_DB_NAME}"
     POSTGRES_USER: "${DJANGO_DB_USER}"
     POSTGRES_PASSWORD: "${DJANGO_DB_PASSWORD}"
-    DJANGO_DB_HOST: "db-postgress"
+    DJANGO_DB_HOST: "db-postgres"
   script:
     - uv run python -m pytest core/
     - uv run ruff format --check core/
