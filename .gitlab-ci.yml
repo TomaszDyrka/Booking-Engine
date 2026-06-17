@@ -1,9 +1,20 @@
+default:
+  image: docker:24.0.5-cli
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - docker info
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
 stages:
   - build
   - test
 
 build-test-job:
   stage: build
+  tags:
+    - docker
   script:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker build --target test -t ${CI_REGISTRY_IMAGE} .
@@ -12,6 +23,8 @@ build-test-job:
 test-job:
   stage: test
   environment: test
+  tags:
+    - docker
   needs: ["build-test-job"]
   image: ${CI_REGISTRY_IMAGE}
   services:
