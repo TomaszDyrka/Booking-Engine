@@ -2,28 +2,67 @@
 # .env files passed in secrets!!!
 name: BookingEngine
 
+x-backend-base: &backend-base
+  image: django_app
+  depends_on:
+    database:
+      condition: service_healthy
+  env_file:
+    - path: .env_dir/.env_db
+      required: true
+    - path: .env_dir/.env_backend
+      required: true
+
+
 services:
-  backend:
-    image: django_app
-    depends_on:
-      - database
+  backend-test:
+    profiles: ["backend-test"]
+    <<: *backend-base
     build:
       context: .
       dockerfile: Dockerfile
       target: test
-    env_file:
-      # - path: .env/.env_db ~  not used since there are different
-      #   required: true        environmental variables name
-      #                         TODO: fix it so they would be the same
-      - path: .env/.env_backend
-        required: true
+    environment:
+      - DEBUG=True
     volumes:
       - .:/app
     command: sleep infinity
-      #- uv run python core/manage.py runserver
+
+  backend-prod:
+    profiles: ["prod", "backend-prod"]
+    <<: *backend-base
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    volumes:
+      - static_volume:/app/core/staticfiles  
+
+  nginx:
+    image: nginx:1.30-alpine
+    profiles: ["prod", "server"]
+    depends_on: 
+      - backend-prod
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/core/staticfiles:ro  
+
   database:
     image: postgres:17.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 60s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     env_file: 
-      - path: .env/.env_db
+      - path: .env_dir/.env_db
         required: true
 
+volumes:
+  static_volume:
+  postgres_data:

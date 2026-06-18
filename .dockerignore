@@ -1,0 +1,16 @@
+# git and docker files
+.git
+.gitignore
+Dockerfile
+docker-compose.yaml
+docker-compose.*.yaml
+
+# environment
+.env*
+.venv/
+
+# logs and other
+*.log
+tmp/
+logs/
+.obsolete/
