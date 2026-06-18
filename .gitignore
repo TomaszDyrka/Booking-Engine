@@ -17,8 +17,8 @@ pyrightconfig.json
 .pg_service.conf
 
 # env files
-.env
+.env*
 
 # other
 room_detail*.html
-
+.obsolete/
