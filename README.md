@@ -22,12 +22,16 @@ git clone <repository-url>
 cd booking-app
 ```
 
-2. **Zbuduj i uruchom kontenery:**
+2. **Zmień nazwę folderu .env.example na .env.dir**
+Podane wartości zmiennych środowiskowych w folderze .env.example 
+nie powinny być używane w produkcji!
+
+3. **Zbuduj i uruchom kontenery:**
 ```
 docker compose -f docker-compose.yml --profile prod up
 ```
 
-3. **Korzystaj!**
+4. **Korzystaj!**
 
 Domyślne konto admina ma dane:
 - email: admin@test.com
