@@ -31,11 +31,12 @@ test-job:
     - name: postgres:17.10
       alias: db-postgres
   variables:
-    POSTGRES_DB: "${DJANGO_DB_NAME}"
-    POSTGRES_USER: "${DJANGO_DB_USER}"
-    POSTGRES_PASSWORD: "${DJANGO_DB_PASSWORD}"
-    DJANGO_DB_HOST: "db-postgres"
+    POSTGRES_DB: "booking_db"
+    POSTGRES_USER: "django_admin"
+    POSTGRES_PASSWORD: "12345678"
+    POSTGRES_HOST: "db-postgres"
   script:
+    - sleep 5
     - uv run python -m pytest core/
     - uv run ruff format --check core/
     - uv run ruff check core/

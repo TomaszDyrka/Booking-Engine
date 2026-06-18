@@ -9,6 +9,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/app/.venv 
 
+# I want to have something to edit with, and don't want
+# the additional baggage that apt-get update commad produces
+# in /apt/lists
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends vim && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY pyproject.toml ./
@@ -29,11 +36,17 @@ FROM base AS prod
 RUN uv venv && uv sync --no-dev
 
 RUN groupadd -r django_group && \
-    useradd -G django_group -b /app -rM django_user
+    useradd -G django_group -b /app -d /app/django_user -mr django_user
 
 COPY --chown=django_user:django_group . .
 
+RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput 
+
+EXPOSE 8000
+
 USER django_user
 
-CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:6789", "core.wsgi"]
+WORKDIR /app/core
+
+CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi"]
 
