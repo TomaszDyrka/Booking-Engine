@@ -40,13 +40,16 @@ RUN groupadd -r django_group && \
 
 COPY --chown=django_user:django_group . .
 
-RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput 
+RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput && \
+    chmod +x core/entrypoint.sh
 
 EXPOSE 8000
 
 USER django_user
 
 WORKDIR /app/core
+
+ENTRYPOINT ["./entrypoint.sh"]
 
 CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi"]
 
