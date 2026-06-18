@@ -7,7 +7,7 @@ Kompleksowy system rezerwacji sal konferencyjnych zaprojektowany z wykorzystanie
 * **Backend:** Python, Django
 * **Baza danych:** PostgreSQL
 * **Konteneryzacja:** Docker, Docker Compose
-* **CI/CD i Testy:** GitLab CI
+* **CI/CD i Testy:** GitLab CI, pytest
 
 ## Infrastruktura i Automatyzacja
 * **Architektura wielokontenerowa:** Wykorzystuje Docker Compose do ścisłej izolacji usługi backendowej Django od instancji bazy danych PostgreSQL, używając dedykowanych sieci kontenerów i zautomatyzowanego zarządzania wolumenami.
