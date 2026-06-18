@@ -23,6 +23,7 @@ cd booking-app
 ```
 
 2. **Zmień nazwę folderu .env.example na .env.dir**
+
 Podane wartości zmiennych środowiskowych w folderze .env.example 
 nie powinny być używane w produkcji!
 
