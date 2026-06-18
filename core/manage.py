@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/home/user/Development/BookingEngine/.venv/bin/python
 """Django's command-line utility for administrative tasks."""
 
 import os

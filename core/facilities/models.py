@@ -59,6 +59,9 @@ class Building(models.Model):
         ]
 
     def __str__(self):
+        return f"{self.name}, {self.city}/{self.postal_code}"
+
+    def __repr__(self):
         return f"{self.id} - {self.name} | {self.city}/{self.postal_code}"
 
 
@@ -136,5 +139,12 @@ class Room(models.Model):
             )
         ]
 
+    @property
+    def city(self):
+        return self.building.city
+
     def __str__(self):
+        return f"{self.section}/{self.number}/{self.building}"
+
+    def __repr__(self):
         return f"{self.id} - {self.section}/{self.number}"

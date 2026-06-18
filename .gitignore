@@ -15,3 +15,10 @@ pyrightconfig.json
 # Database stuff
 .pgpass
 .pg_service.conf
+
+# env files
+.env*
+
+# other
+room_detail*.html
+.obsolete/

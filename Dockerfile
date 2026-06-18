@@ -1,0 +1,52 @@
+# <--- BASE stage ---> #
+
+FROM python:3.13 AS base
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/app/.venv 
+
+# I want to have something to edit with, and don't want
+# the additional baggage that apt-get update commad produces
+# in /apt/lists
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends vim && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+
+
+# <--- TEST stage ---> #
+
+FROM base AS test
+
+RUN uv venv && uv sync
+
+COPY . .
+
+# <--- PROD stage ---> #
+
+FROM base AS prod
+
+RUN uv venv && uv sync --no-dev
+
+RUN groupadd -r django_group && \
+    useradd -G django_group -b /app -d /app/django_user -mr django_user
+
+COPY --chown=django_user:django_group . .
+
+RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput 
+
+EXPOSE 8000
+
+USER django_user
+
+WORKDIR /app/core
+
+CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi"]
+

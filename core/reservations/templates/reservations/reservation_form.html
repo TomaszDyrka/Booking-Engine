@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Create account</title>
+</head>
+<body>
+    <h1>Register new account</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div style="color: red;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        
+        {{ form.as_p }}
+        
+        <button type="submit">registe<a class="navbar-brand" href="/">Reservation System</a>r</button>
+    </form>
+</body>
+</html>

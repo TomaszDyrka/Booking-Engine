@@ -4,29 +4,6 @@ from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 
 
-@pytest.fixture
-def def_building():
-    return Building.objects.create(
-        name="Main Building",
-        city="Cracow",
-        street="Wroclawska",
-        number="10",
-        postal_code="23-412",
-    )
-
-
-@pytest.fixture
-def def_room(def_building):
-    return Room.objects.create(
-        building=def_building,
-        section="A",
-        number="13",
-        type=Room.RoomType.CLASSROOM,
-        size=Room.RoomSize.LARGE,
-        price=Room.RoomPrice.HIGH,
-    )
-
-
 @pytest.mark.facilities
 @pytest.mark.django_db
 class TestModels:
@@ -146,3 +123,8 @@ class TestModels:
             )
 
             dupe.full_clean()
+
+    def test_room_city(self, def_room):
+        """tests if room correctly knows the city it is within"""
+
+        assert def_room.city == def_room.building.city
