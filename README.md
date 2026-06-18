@@ -1,4 +1,7 @@
 # BookingEngine - System Rezerwacji Sal Konferencyjnych
+## Informacja
+To repozytorium jest tylko w ramach kopii zapasowej. Najbardziej aktualny program jest dostępny na moim gitlabie:
+https://gitlab.com/tomdyrka/booking-app
 
 ## Przegląd
 Kompleksowy system rezerwacji sal konferencyjnych zaprojektowany z wykorzystaniem modułowej architektury backendowej, aby zoptymalizować przepływ danych i zapobiegać konfliktom w harmonogramie. Projekt skupia się na solidnej infrastrukturze, systematycznych testach oraz niezawodnej izolacji środowisk.
