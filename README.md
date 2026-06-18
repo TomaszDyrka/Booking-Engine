@@ -28,6 +28,7 @@ docker compose -f docker-compose.yml --profile prod up
 ```
 
 3. **Korzystaj!**
+
 Domyślne konto admina ma dane:
 - email: admin@test.com
 - hasło: 1234
