@@ -22,7 +22,7 @@ git clone <repository-url>
 cd booking-app
 ```
 
-2. **Zmień nazwę folderu .env.example na .env.dir**
+2. **Zmień nazwę folderu .env.example na .env_dir**
 
 Podane wartości zmiennych środowiskowych w folderze .env.example 
 nie powinny być używane w produkcji!
