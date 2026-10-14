@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: booking-frontend
+  name: booking-frontend
+  namespace: booking-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-frontend
+  template:
+    metadata:
+      labels:
+        app: booking-frontend
+    spec:
+      # volumes
+      volumes:
+      - name: logs-volume
+        emptyDir: 
+          sizeLimit: 128Mi
+
+      # checking for backend to startup
+      initContainers:
+      - name: backend-initial-readiness
+        image: busybox:1.37
+        command: ["sh", "-c", "until nc -z booking-backend-service 80; do echo \"(nginx) Waiting...\"; sleep 1; done"]
+
+      # main container for nginx
+      containers:
+      - name: frontend
+        image: nginx-frontend
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: frontend-map
+        - secretRef:
+            name: frontend-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 1
+          periodSeconds: 3
+        volumeMounts:
+        - mountPath: /var/log/nginx
+          name: logs-volume
+      
+      # for logs
+      # TODO: add config to fluent-bit
+      # - name: logs-sidecar
+      #   image: fluent/fluent-bit:5.1
+      #   volumeMounts:
+      #   - mountPath: /var/log/frontend
+      #     name: logs-volume
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: booking-frontend
+  name: booking-frontend-service
+  namespace: booking-app
+spec:
+  selector:
+    app: booking-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: booking-frontend-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: booking-frontend
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+

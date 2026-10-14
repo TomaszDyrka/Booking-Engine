@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: booking-db
+  name: booking-db
+  namespace: booking-app
+spec:
+  serviceName: "booking-db-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-db
+  template:
+    metadata:
+      labels:
+        app: booking-db
+    spec:
+      terminationGracePeriodSeconds: 15
+      containers:
+      - image: postgres:15
+        name: booking-db-instance
+        ports:
+        - containerPort: 5432
+          name: database
+        envFrom:
+        - secretRef:
+            name: db-secret
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data/
+
+    # pvc uses standard storage class, no need to create a custom one
+    volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "Standard"
+        resources:
+          requests:
+            storage: 500Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: booking-db
+  name: booking-db-service
+  namespace: booking-app
+spec:
+  clusterIP: None
+  selector:
+    app: booking-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

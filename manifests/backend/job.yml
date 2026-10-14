@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+spec:
+  template:
+    spec:
+      containers:
+      - name: migrate
+        image: django-app
+        envFrom:
+        - configMapRef:
+            name: backend-map
+        - secretRef:
+            name: backend-secret
+        command: ["uv", "run", "python", "manage.py", "migrate"]
+      restartPolicy: onFailure
