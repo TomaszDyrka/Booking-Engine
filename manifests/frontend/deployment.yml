@@ -30,14 +30,15 @@ spec:
       # main container for nginx
       containers:
       - name: frontend
+        imagePullPolicy: Always
         image: nginx-frontend
         ports:
         - containerPort: 80
-        envFrom:
-        - configMapRef:
-            name: frontend-map
-        - secretRef:
-            name: frontend-secret
+        #envFrom:
+        #- configMapRef:
+        #    name: frontend-map
+        #- secretRef:
+        #    name: frontend-secret
         resources:
           requests:
             memory: "256Mi"
@@ -51,6 +52,7 @@ spec:
             port: 80
           initialDelaySeconds: 1
           periodSeconds: 3
+          timeoutSeconds: 3
         volumeMounts:
         - mountPath: /var/log/nginx
           name: logs-volume

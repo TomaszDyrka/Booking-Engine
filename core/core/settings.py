@@ -16,28 +16,6 @@ from os import getenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "json_formatter": {
-            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-            "format": "%(asctime)s %(name)s %(message)s",
-        }
-    },
-    "handlers": {
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": "/app/logs/booking-engine.log",
-            "formatter": "json_formatter",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO",
-    },
-}
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -47,8 +25,11 @@ SECRET_KEY = getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv("DEBUG")
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8080",
+]
 
 # Application definition
 

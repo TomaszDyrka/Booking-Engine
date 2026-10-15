@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: booking-backend
+  name: backend-map
+  namespace: booking-app
+data:
+  POSTGRES_HOST: "booking-db-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "booking-db"
+  POSTGRES_USER: "django-admin"
+  DEBUG: "False"
+

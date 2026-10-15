@@ -2,16 +2,27 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: db-migrate
+  namespace: booking-app
 spec:
   template:
     spec:
       containers:
       - name: migrate
         image: django-app
+        imagePullPolicy: Never
         envFrom:
         - configMapRef:
             name: backend-map
         - secretRef:
             name: backend-secret
-        command: ["uv", "run", "python", "manage.py", "migrate"]
-      restartPolicy: onFailure
+        - secretRef:
+            name: db-secret
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          set -e
+          uv run python manage.py migrate
+
+          set +e
+          DJANGO_SUPERUSER_PASSWORD=1234 uv run python manage.py createsuperuser --noinput --email=admin@test.com --pesel=12312312312
+      restartPolicy: OnFailure

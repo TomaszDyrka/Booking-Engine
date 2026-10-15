@@ -12,13 +12,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def http_healthcheck():
+def http_healthcheck(*args, **kwargs):
     """Healthcheck for liveliness probe"""
     logger.info("Liveliness check", exc_info=True)
     return HttpResponse(status=200)
 
 
-def db_healthcheck():
+def db_healthcheck(*args, **kwargs):
     """Healthcheck for readiness probe"""
     try:
         with connection.cursor() as cursor:
