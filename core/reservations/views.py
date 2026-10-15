@@ -1,11 +1,33 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.generic import DetailView, ListView
 from django.views import View
 from .models import Reservation
 from facilities.models import Room
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.db import connection
 from .forms import ReservationForm
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def http_healthcheck():
+    """Healthcheck for liveliness probe"""
+    logger.info("Liveliness check", exc_info=True)
+    return HttpResponse(status=200)
+
+
+def db_healthcheck():
+    """Healthcheck for readiness probe"""
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1;")
+            logger.info("Readiness check", exc_info=True)
+            return HttpResponse("Database ready", status=200)
+    except Exception:
+        logger.error("Readiness probe failed - database is down!", exc_info=True)
+        return HttpResponse("Database unavailable", status=503)
 
 
 class RoomDetailView(DetailView):
