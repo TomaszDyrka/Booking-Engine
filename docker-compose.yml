@@ -1,9 +1,9 @@
 # only for local use, as it doesn't have
 # .env files passed in secrets!!!
-name: BookingEngine
+name: booking-engine
 
 x-backend-base: &backend-base
-  image: django_app
+  image: django-app
   depends_on:
     database:
       condition: service_healthy
