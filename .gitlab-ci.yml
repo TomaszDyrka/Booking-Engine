@@ -1,43 +1,85 @@
+# -------------------
+# SETTINGS
+# -------------------
 default:
   image: docker:24.0.5-cli
   services:
     - docker:24.0.5-dind
+
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_NAME: "django-app"
+
+  # postgres vars
+  POSTGRES_DB: "booking_db"
+  POSTGRES_USER: "django_admin"
+  POSTGRES_PASSWORD: "12345678"
+  POSTGRES_HOST: "booking-db-service"
+  SECRET_KEY: "ultrasecretkey"
 
 stages:
   - build
   - test
 
-build-test-job:
+# -------------------
+# JOBS
+# -------------------
+build-job:
   stage: build
   tags:
     - docker
   before_script:
-    - docker info
+    - docker info # making sure it has docker available
   script:
-    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
-    - docker build --target test -t ${CI_REGISTRY_IMAGE} .
-    - docker push ${CI_REGISTRY_IMAGE}
+    - docker build --target test -f Dockerfile.Backend -t ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} .
+    - docker save ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} -o django-backend.tar
+  artifacts:
+    paths:
+      - django-backend.tar
+    expire_in: 1 hour
 
 test-job:
   stage: test
   environment: test
   tags:
     - docker
-  needs: ["build-test-job"]
-  image: ${CI_REGISTRY_IMAGE}
-  services:
-    - name: postgres:17.10
-      alias: db-postgres
-  variables:
-    POSTGRES_DB: "booking_db"
-    POSTGRES_USER: "django_admin"
-    POSTGRES_PASSWORD: "12345678"
-    POSTGRES_HOST: "db-postgres"
+  needs: ["build-job"]
+  before_script:
+    - docker load -i django-backend.tar
+    - docker network create test-net
+    - |
+      docker run -d \
+        --network=test-net \
+        --name booking-db-service \
+        --env POSTGRES_DB=${POSTGRES_DB} \
+        --env POSTGRES_USER=${POSTGRES_USER} \
+        --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+        postgres:15
+    - |
+      until docker exec booking-db-service pg_isready -U django_admin -d booking_db; do
+        echo "Waiting for postgres..."
+        sleep 1
+      done
   script:
-    - sleep 5
-    - uv run python -m pytest core/
-    - uv run ruff format --check core/
-    - uv run ruff check core/
+    - |
+      docker run --rm \
+      --network=test-net \
+      --env POSTGRES_DB=${POSTGRES_DB} \
+      --env POSTGRES_USER=${POSTGRES_USER} \
+      --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+      --env POSTGRES_HOST=${POSTGRES_HOST} \
+      --env SECRET_KEY=${SECRET_KEY} \
+      --env DEBUG=True \
+      ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} \
+      sh -c "uv run python -m pytest core/"
 
+lint-job:
+  stage: test
+  environment: test
+  tags:
+    - docker
+  needs: ["build-job"]
+  before_script:
+    - docker load -i django-backend.tar
+  script:
+    - docker run --rm ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} sh -c "uv run ruff format --check core/ && uv run ruff check core/"
