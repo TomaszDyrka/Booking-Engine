@@ -2,21 +2,30 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: db-migrate
-  namespace: booking-app
 spec:
   template:
     spec:
-      containers:
-      - name: migrate
-        image: django-app
-        imagePullPolicy: Never
+      initContainers:
+      - name: database-initial-readiness
+        image: postgres:15-alpine
+        command: ["sh", "-c", "until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB; do echo 'Waiting for db...'; sleep 2; done;"]
         envFrom:
         - configMapRef:
-            name: backend-map
+            name: booking-config
         - secretRef:
-            name: backend-secret
+            name: postgres-credentials
+
+      containers:
+      - name: migrate
+        image: django-app:prod
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: booking-config
         - secretRef:
-            name: db-secret
+            name: django-secrets
+        - secretRef:
+            name: postgres-credentials
         command: ["/bin/bash", "-c"]
         args:
         - |
@@ -24,5 +33,5 @@ spec:
           uv run python manage.py migrate
 
           set +e
-          DJANGO_SUPERUSER_PASSWORD=1234 uv run python manage.py createsuperuser --noinput --email=admin@test.com --pesel=12312312312
+          uv run python manage.py createsuperuser --noinput --email=admin@test.com --pesel=12312312312
       restartPolicy: OnFailure

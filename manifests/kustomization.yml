@@ -1,0 +1,27 @@
+# Kustomization manifest for easy configuration management
+# if needed, create catalogue 'overlays' inside manifests
+# and specify overlays for provided manifests
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: booking-namespace  
+
+resources:
+  - backend/deployment.yml
+  - backend/job.yml
+  - database/statefulset.yml
+  - frontend/deployment.yml
+
+configMapGenerator:
+- name: booking-config
+  envs:
+  - .env_dir/.env_global
+
+secretGenerator:
+- name: postgres-credentials 
+  envs:
+  - .env_dir/.postgres_credentials
+
+- name: django-secrets
+  envs:
+  - .env_dir/.django_secrets

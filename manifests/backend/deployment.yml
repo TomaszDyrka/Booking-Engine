@@ -4,7 +4,6 @@ metadata:
   labels:
     app: booking-backend
   name: booking-backend
-  namespace: booking-app
 spec:
   replicas: 1
   selector:
@@ -24,32 +23,35 @@ spec:
       # checking for db to startup
       initContainers:
       - name: database-initial-readiness
-        image: busybox:1.37
-        command: ["sh", "-c", "until nc -z $POSTGRES_HOST $POSTGRES_PORT; do echo Waiting...; sleep 1; done"]
+        image: postgres:15-alpine
+        command: ["sh", "-c", "until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB; do echo 'Waiting for db...'; sleep 2; done;"]
+        envFrom:
         env:
         - name: POSTGRES_HOST
           valueFrom:
             configMapKeyRef:
-              name: backend-map
+              name: booking-config
               key: POSTGRES_HOST
         - name: POSTGRES_PORT
           valueFrom:
             configMapKeyRef:
-              name: backend-map
+              name: booking-config
               key: POSTGRES_PORT
 
       # main container for app 
       containers:
       - name: backend
-        image: django-app
-        imagePullPolicy: Always
+        image: django-app:prod
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
         envFrom:
         - configMapRef:
-            name: backend-map
+            name: booking-config
         - secretRef:
-            name: backend-secret
+            name: django-secrets
+        - secretRef:
+            name: postgres-credentials
         resources:
           requests:
             memory: "256Mi"
@@ -93,7 +95,6 @@ metadata:
   labels:
     app: booking-backend
   name: booking-backend-service
-  namespace: booking-app
 spec:
   selector:
     app: booking-backend

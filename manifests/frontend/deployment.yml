@@ -4,7 +4,6 @@ metadata:
   labels:
     app: booking-frontend
   name: booking-frontend
-  namespace: booking-app
 spec:
   replicas: 1
   selector:
@@ -30,7 +29,7 @@ spec:
       # main container for nginx
       containers:
       - name: frontend
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         image: nginx-frontend
         ports:
         - containerPort: 80
@@ -72,7 +71,6 @@ metadata:
   labels:
     app: booking-frontend
   name: booking-frontend-service
-  namespace: booking-app
 spec:
   selector:
     app: booking-frontend
