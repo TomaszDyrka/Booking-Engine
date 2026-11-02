@@ -1,12 +1,12 @@
 from django.urls import path
+
 from .views import (
     ReservationsEventsAPIView,
     RoomDetailView,
     RoomListView,
-    http_healthcheck,
     db_healthcheck,
+    http_healthcheck,
 )
-
 
 urlpatterns = [
     # For getting reservations

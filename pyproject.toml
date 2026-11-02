@@ -22,3 +22,8 @@ dev = [
     "python-lsp-ruff>=2.3.1",
     "ruff>=0.15.5",
 ]
+
+[tool.ruff.lint]
+# this stuff is in direct conflict with django best-practices
+# (as in "normal" python we dont really want to assign lists as class atributes)
+ignore = ["RUF012"]

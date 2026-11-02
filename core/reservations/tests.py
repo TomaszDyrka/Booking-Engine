@@ -1,9 +1,11 @@
-import pytest
 import datetime
-from .models import Reservation
-from django.utils import timezone
+
+import pytest
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from django.utils import timezone
+
+from .models import Reservation
 
 
 @pytest.mark.reservations
@@ -103,7 +105,7 @@ class TestReservationViews:
         assert response_correct_acc.status_code == 200
         data_recived = response_correct_acc.json()
 
-        assert data_recived[0]["title"] == f"{str(def_reservation.account)}"
+        assert data_recived[0]["title"] == f"{def_reservation.account!s}"
         assert data_recived[0]["start"] == def_reservation.start_date.isoformat()
         assert data_recived[0]["end"] == def_reservation.end_date.isoformat()
 

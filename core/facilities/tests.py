@@ -1,7 +1,8 @@
 import pytest
-from .models import Room, Building
-from django.db import IntegrityError
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+
+from .models import Building, Room
 
 
 @pytest.mark.facilities

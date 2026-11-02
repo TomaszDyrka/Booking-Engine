@@ -1,20 +1,22 @@
-from django.http import JsonResponse, HttpResponse
-from django.views.generic import DetailView, ListView
-from django.views import View
-from .models import Reservation
-from facilities.models import Room
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.db import connection
-from .forms import ReservationForm
 import logging
+
+from django.contrib import messages
+from django.db import OperationalError, connection
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect
+from django.views import View
+from django.views.generic import DetailView, ListView
+from facilities.models import Room
+
+from .forms import ReservationForm
+from .models import Reservation
 
 logger = logging.getLogger(__name__)
 
 
 def http_healthcheck(*args, **kwargs):
     """Healthcheck for liveliness probe"""
-    logger.info("Liveliness check", exc_info=True)
+    logger.info("Liveliness check")
     return HttpResponse(status=200)
 
 
@@ -23,10 +25,10 @@ def db_healthcheck(*args, **kwargs):
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1;")
-            logger.info("Readiness check", exc_info=True)
+            logger.info("Readiness check")
             return HttpResponse("Database ready", status=200)
-    except Exception:
-        logger.error("Readiness probe failed - database is down!", exc_info=True)
+    except OperationalError:
+        logger.error("Readiness probe failed - database is down!")
         return HttpResponse("Database unavailable", status=503)
 
 
@@ -105,7 +107,7 @@ class ReservationsEventsAPIView(View):
 
         events = []
         for reserv in reservations:
-            title = f"{str(reserv.account)}"
+            title = f"{reserv.account!s}"
 
             events.append(
                 {
