@@ -3,24 +3,29 @@
 name: booking-engine
 
 x-backend-base: &backend-base
-  image: django-app
   depends_on:
     database:
       condition: service_healthy
   env_file:
-    - path: .env_dir/.env_db
+    - path: .env_dir/.django_secrets
       required: true
-    - path: .env_dir/.env_backend
+    - path: .env_dir/.env_global
       required: true
-
+    - path: .env_dir/.postgres_credentials
+      required: true
+  networks:
+    app-network:
+      aliases:
+        - booking-backend-service
 
 services:
   backend-test:
     profiles: ["backend-test"]
     <<: *backend-base
+    image: django-app:test
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.Backend
       target: test
     environment:
       - DEBUG=True
@@ -31,23 +36,24 @@ services:
   backend-prod:
     profiles: ["prod", "backend-prod"]
     <<: *backend-base
+    image: django-app:prod
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.Backend
       target: prod
-    volumes:
-      - static_volume:/app/core/staticfiles  
 
   nginx:
-    image: nginx:1.30-alpine
+    image: nginx-frontend
     profiles: ["prod", "server"]
+    build:
+      context: .
+      dockerfile: Dockerfile.Frontend
     depends_on: 
       - backend-prod
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - static_volume:/app/core/staticfiles:ro  
+    networks:
+      - app-network
 
   database:
     image: postgres:17.10
@@ -60,9 +66,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file: 
-      - path: .env_dir/.env_db
+      - path: .env_dir/.env_global
         required: true
+      - path: .env_dir/.postgres_credentials
+        required: true
+    networks:
+      app-network:
+        aliases:
+          - booking-db-service
+
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  static_volume:
   postgres_data:
