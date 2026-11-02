@@ -28,7 +28,7 @@ DEBUG = getenv("DEBUG")
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:8080",
+    "http://localhost:8080",
 ]
 
 # Application definition
