@@ -7,10 +7,10 @@ kind: Kustomization
 namespace: booking-namespace  
 
 resources:
-  - backend/deployment.yml
-  - backend/job.yml
-  - database/statefulset.yml
-  - frontend/deployment.yml
+  - manifests/backend/deployment.yml
+  - manifests/backend/job.yml
+  - manifests/database/statefulset.yml
+  - manifests/frontend/deployment.yml
 
 configMapGenerator:
 - name: booking-config

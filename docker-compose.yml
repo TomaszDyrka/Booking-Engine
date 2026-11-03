@@ -14,9 +14,7 @@ x-backend-base: &backend-base
     - path: .env_dir/.postgres_credentials
       required: true
   networks:
-    app-network:
-      aliases:
-        - booking-backend-service
+    - app-network
 
 services:
   backend-test:
@@ -42,6 +40,21 @@ services:
       dockerfile: Dockerfile.Backend
       target: prod
 
+  # soooo unfortunatelly services in k8s and aliases here cant be interchangeable
+  # I do not want to change anything in docker image nor I want to modify k8s manifests
+  # so this is a proxy that translates port 8000 (django) to port 80 (nginx)
+  backend-service:
+    profiles: ["prod", "backend-prod"]
+    image: alpine/socat
+    command: TCP-LISTEN:80,fork,reuseaddr TCP:backend-prod:8000
+    depends_on:
+      - backend-prod
+    restart: unless-stopped
+    networks:
+      app-network:
+        aliases:
+          - booking-backend-service
+
   nginx:
     image: nginx-frontend
     profiles: ["prod", "server"]
@@ -49,9 +62,9 @@ services:
       context: .
       dockerfile: Dockerfile.Frontend
     depends_on: 
-      - backend-prod
+      - backend-service
     ports:
-      - "80:80"
+      - "8000:80"
     networks:
       - app-network
 
@@ -74,7 +87,6 @@ services:
       app-network:
         aliases:
           - booking-db-service
-
 
 networks:
   app-network:

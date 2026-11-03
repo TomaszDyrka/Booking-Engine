@@ -48,5 +48,5 @@ USER django_user
 
 WORKDIR /app/core
 
-CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:80", "core.wsgi"]
+CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi"]
 
