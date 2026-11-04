@@ -35,11 +35,10 @@ docker compose -f docker-compose.yml --profile prod up
 
 5. **Korzystaj!**
 
-Aplikacja pojawia się na localhoście.
+Aplikacja pojawia się na localhoście, na porcie `8000`.
 Domyślne konto admina ma dane:
 - email: admin@test.com
-- hasło: podane w zmiennych środowiskowych
-Co może być zmienione m.in. poprzez modyfikację pliku compose.
+- hasło: podane w zmiennych środowiskowych, co może być zmienione m.in. poprzez modyfikację pliku compose.
 
 6. **\*Uruchom na minikube**
 
