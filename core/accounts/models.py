@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from django.conf import settings
-from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
-from django.core.validators import RegexValidator, EmailValidator
-from django.utils.translation import gettext_lazy as _
-from django.db import models
-from django_cryptography.fields import encrypt
 import hashlib
 import re
+
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
+from django.core.validators import EmailValidator, RegexValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django_cryptography.fields import encrypt
 
 
 class AccountManager(BaseUserManager):
@@ -23,7 +24,7 @@ class AccountManager(BaseUserManager):
         if fields.get("is_superuser") is not expected_superuser:
             raise ValueError(
                 f"'is_superuser' should be set to {expected_superuser}, but is {fields.get('is_superuser')}"
-            )  # noqa: E501
+            )
         if fields.get("is_active") is not True:
             raise ValueError("'is_active' should be set to True")
 

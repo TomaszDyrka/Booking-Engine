@@ -1,7 +1,8 @@
-import pytest
-from django.utils import timezone
 from datetime import timedelta
+
+import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from facilities.models import Building, Room
 from reservations.models import Reservation
 

@@ -18,7 +18,7 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 
 
 # <--- TEST stage ---> #
@@ -40,16 +40,13 @@ RUN groupadd -r django_group && \
 
 COPY --chown=django_user:django_group . .
 
-RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput && \
-    chmod +x core/entrypoint.sh
+RUN SECRET_KEY=dummy-key uv run python core/manage.py collectstatic --noinput
 
-EXPOSE 8000
+EXPOSE 80
 
 USER django_user
 
 WORKDIR /app/core
-
-ENTRYPOINT ["./entrypoint.sh"]
 
 CMD ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi"]
 

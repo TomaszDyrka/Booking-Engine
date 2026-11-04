@@ -1,8 +1,9 @@
-from .forms import CustomAccountCreationForm
-from reservations.models import Reservation
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
-from django.shortcuts import redirect
+from reservations.models import Reservation
+
+from .forms import CustomAccountCreationForm
 
 
 class RegisterView(CreateView):

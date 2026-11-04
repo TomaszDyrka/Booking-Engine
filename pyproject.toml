@@ -7,8 +7,10 @@ requires-python = ">=3.13"
 dependencies = [
     "django>=6.0.3",
     "django-cryptography-5>=2.0.3",
+    "django-prometheus>=2.5.0",
     "gunicorn>=26.0.0",
     "psycopg>=3.3.3",
+    "python-json-logger>=4.2.0",
 ]
 
 [dependency-groups]
@@ -20,3 +22,8 @@ dev = [
     "python-lsp-ruff>=2.3.1",
     "ruff>=0.15.5",
 ]
+
+[tool.ruff.lint]
+# this stuff is in direct conflict with django best-practices
+# (as in "normal" python we dont really want to assign lists as class atributes)
+ignore = ["RUF012"]

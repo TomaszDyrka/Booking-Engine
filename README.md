@@ -4,18 +4,20 @@ To repozytorium jest tylko w ramach kopii zapasowej. Najbardziej aktualny progra
 https://gitlab.com/tomdyrka/booking-app
 
 ## Przegląd
-Kompleksowy system rezerwacji sal konferencyjnych zaprojektowany z wykorzystaniem modułowej architektury backendowej, aby zoptymalizować przepływ danych i zapobiegać konfliktom w harmonogramie. Projekt skupia się na solidnej infrastrukturze, systematycznych testach oraz niezawodnej izolacji środowisk.
+System rezerwacji sal konferencyjnych zaprojektowany z wykorzystaniem modułowej architektury backendowej oraz przygotowany do wdrożenia na klastrze Kubernetes (lokalnie na Minikube lub w chmurze).
 
 ## Stos Technologiczny
 * **Backend:** Python, Django
 * **Baza danych:** PostgreSQL
-* **Konteneryzacja:** Docker, Docker Compose
-* **CI/CD i Testy:** GitLab CI
+* **Konteneryzacja:** Docker
+* **Orkiestracja:** Kubernetes, Docker Compose, Minikube
+* **CI/CD i Testy:** GitLab CI, pytest
 
 ## Infrastruktura i Automatyzacja
-* **Architektura wielokontenerowa:** Wykorzystuje Docker Compose do ścisłej izolacji usługi backendowej Django od instancji bazy danych PostgreSQL, używając dedykowanych sieci kontenerów i zautomatyzowanego zarządzania wolumenami.
-* **Zoptymalizowane budowanie:** Wdraża wieloetapowe budowanie obrazów (multi-stage Docker builds), aby zagwarantować absolutną spójność środowiska w fazach rozwoju lokalnego i testowania, przy jednoczesnej optymalizacji rozmiaru obrazów.
-* **Integracja CI/CD:** Skonteneryzowane środowiska są płynnie zintegrowane ze zautomatyzowanymi przepływami testowymi w ramach potoków GitLab CI/CD. Zapewnia to szybką pętlę zwrotną i eliminuje błędy związane ze środowiskiem na wczesnym etapie dostarczania.
+* **Konteneryzacja (Docker Compose)**: Backend (Django) i baza danych (PostgreSQL) działają w odizolowanych kontenerach, ze skonfigurowaną siecią i wolumenem dla zachowania danych.
+* **Multi-stage builds**: Proces budowania obrazów Docker jest wieloetapowy, co minimalizuje ich rozmiar docelowy i zapewnia to samo środowisko do testów oraz developmentu.
+* **GitLab CI/CD**: Pipeline'y automatycznie uruchamiają testy w kontenerach przy każdej zmianie w kodzie.
+* **Manifesty Kubernetes**: Aplikacja jest przygotowana do wdrożenia w chmurze lub lokalnie na Minikube za pomocą napisanych konfiguracji K8s.
 
 ## Konfiguracja Lokalna
 
@@ -25,30 +27,38 @@ git clone <repository-url>
 cd booking-app
 ```
 
-2. **Zmień nazwę folderu .env.example na .env_dir**
+2. **Zmień nazwę folderu .env_example na .env_dir**
 
-Podane wartości zmiennych środowiskowych w folderze .env.example
-nie powinny być używane w produkcji!
+3. **Uzupełnij zmienne środowiskowe**
 
-3. **Zbuduj i uruchom kontenery:**
+4. **Zbuduj i uruchom kontenery:**
 ```
 docker compose -f docker-compose.yml --profile prod up
 ```
 
-4. **Korzystaj!**
+5. **Korzystaj!**
 
+Aplikacja pojawia się na localhoście, na porcie `8000`.
 Domyślne konto admina ma dane:
 - email: admin@test.com
-- hasło: 1234
+- hasło: podane w zmiennych środowiskowych, co może być zmienione m.in. poprzez modyfikację pliku compose.
 
-Aplikacja jest dostępna na adresach:** 
-- dla użytkowników: 0.0.0.0/ 
-- dla adminów:      0.0.0.0/admin
+6. **\*Uruchom na minikube**
+
+Aby uruchomić aplikację na minikube, należy:
+- zbudować i załadować oba obrazy do minikube:
+    - `docker build -t django-app:prod -f Dockerfile.Backend .`
+    - `docker build -t nginx-frontend -f Dockerfile.Frontend .`
+    - `minikube image load <obraz>`
+- zlecić utworzenie zasobów: `kubectl apply -k .`
+- udostępnić serwis nginx'a komputerowi poleceniem: `minikube tunnel` (należy to zrobić ponieważ chcemy 'zasymulować' load balancer)
+- poleceniem `kubectl get svc -n booking-namespace` sprawdzić external IP tego serwisu (adres do użycia w przeglądarce)
+- ewentualnie jeśli minikube działa na maszynie wirtualnej wewnątrz komputera - ustawić połączenie rzutujące porty (np. `ssh -L <port-hosta>:<external-ip>:80 user@vm-ip`)
 
 ## Testowanie
-Wszystkie testy są uruchamiane automatycznie w GitLab CI, ale możesz je również odpalić lokalnie w swoim izolowanym kontenerze:
+Wszystkie testy są uruchamiane automatycznie w GitLab CI, ale możesz je również odpalić lokalnie w profilu *backend-test* w docker-compose, np:
 ```
-docker exec bookingengine-backend-prod-1 uv run python -m pytest
+docker compose --profile backend-test up backend-test --build
 ```
 
 ## Autor
