@@ -48,10 +48,10 @@ Aby uruchomić aplikację na minikube, należy:
     - `docker build -t django-app:prod -f Dockerfile.Backend .`
     - `docker build -t nginx-frontend -f Dockerfile.Frontend .`
     - `minikube image load <obraz>`
-- zalecić utworzenie zasobów: `kubectl apply -k .`
+- zlecić utworzenie zasobów: `kubectl apply -k .`
 - udostępnić serwis nginx'a komputerowi poleceniem: `minikube tunnel` (należy to zrobić ponieważ chcemy 'zasymulować' load balancer)
-- poleceniem `kubectl get svc -n booking-namespace` sprawdzić external IP tego service (adres do użycia w przeglądarce)
-- ewentualnie jeśli minikube działa na maszynie wirtualnej wewnątrz komputera - ustawić połączenie rzutujące porty (np. `ssh -L <port-hosta>:<external ip>:80 user@vm-ip`)
+- poleceniem `kubectl get svc -n booking-namespace` sprawdzić external IP tego serwisu (adres do użycia w przeglądarce)
+- ewentualnie jeśli minikube działa na maszynie wirtualnej wewnątrz komputera - ustawić połączenie rzutujące porty (np. `ssh -L <port-hosta>:<external-ip>:80 user@vm-ip`)
 
 ## Testowanie
 Wszystkie testy są uruchamiane automatycznie w GitLab CI, ale możesz je również odpalić lokalnie w profilu *backend-test* w docker-compose, np:
