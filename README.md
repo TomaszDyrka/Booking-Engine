@@ -1,7 +1,7 @@
 # BookingEngine - System Rezerwacji Sal Konferencyjnych
 
 ## Przegląd
-System rezerwacji sal konferencyjnych zaprojektowany z wykorzystaniem modułowej architektury backendowej oraz .
+System rezerwacji sal konferencyjnych zaprojektowany z wykorzystaniem modułowej architektury backendowej oraz przygotowany do wdrożenia na klastrze Kubernetes (lokalnie na Minikube lub w chmurze).
 
 ## Stos Technologiczny
 * **Backend:** Python, Django
