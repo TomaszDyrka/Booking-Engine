@@ -42,8 +42,8 @@ services:
       target: prod
     command: >
       sh -c "/app/.venv/bin/python manage.py migrate && 
-      /app/.venv/bin/python manage.py createsuperuser --noinput --email=admin@test.com --pesel=12312312312 &&
-      /app/.venv/bin/gunicorn --bind 0.0.0.0:8000 core.wsgi"
+      (/app/.venv/bin/python manage.py createsuperuser --noinput --email=admin@test.com --pesel=12312312312 || true) &&
+      exec /app/.venv/bin/gunicorn --bind 0.0.0.0:8000 core.wsgi" 
    
   # soooo unfortunatelly services in k8s and aliases here cant be interchangeable
   # I do not want to change anything in docker image nor I want to modify k8s manifests
