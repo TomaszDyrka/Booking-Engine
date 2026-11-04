@@ -7,6 +7,7 @@ kind: Kustomization
 namespace: booking-namespace  
 
 resources:
+  - manifests/namespace.yml
   - manifests/backend/deployment.yml
   - manifests/backend/job.yml
   - manifests/database/statefulset.yml
