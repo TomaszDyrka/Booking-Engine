@@ -1,9 +1,11 @@
-import pytest
 import datetime
-from .models import Reservation
-from django.utils import timezone
+
+import pytest
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from django.utils import timezone
+
+from .models import Reservation
 
 
 @pytest.mark.reservations
@@ -103,7 +105,7 @@ class TestReservationViews:
         assert response_correct_acc.status_code == 200
         data_recived = response_correct_acc.json()
 
-        assert data_recived[0]["title"] == f"{str(def_reservation.account)}"
+        assert data_recived[0]["title"] == f"{def_reservation.account!s}"
         assert data_recived[0]["start"] == def_reservation.start_date.isoformat()
         assert data_recived[0]["end"] == def_reservation.end_date.isoformat()
 
@@ -115,3 +117,25 @@ class TestReservationViews:
 
         data = response_incorrect_acc.json()
         assert not data
+
+
+@pytest.mark.healthchecks
+class TestHealthchecks:
+    def test_liveness_probe(self, client):
+        """Tests if the liveness probe returns 200 OK without DB connection"""
+
+        url = reverse("http_healthcheck")
+
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.content == b""
+
+    @pytest.mark.django_db
+    def test_readiness_probe_success(self, client):
+        """Tests if the readiness probe returns 200 OK when DB is connected"""
+
+        url = reverse("db_healthcheck")
+
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.content == b"Database ready"

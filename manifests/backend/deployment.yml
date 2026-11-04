@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: booking-backend
+  name: booking-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-backend
+  template:
+    metadata:
+      labels:
+        app: booking-backend
+    spec:
+      # volumes
+      volumes:
+      - name: logs-volume
+        emptyDir: 
+          sizeLimit: 128Mi
+
+      # checking for db to startup
+      initContainers:
+      - name: database-initial-readiness
+        image: postgres:15-alpine
+        command: ["sh", "-c", "until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB; do echo 'Waiting for db...'; sleep 2; done;"]
+        envFrom:
+        env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: booking-config
+              key: POSTGRES_HOST
+        - name: POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: booking-config
+              key: POSTGRES_PORT
+
+      # main container for app 
+      containers:
+      - name: backend
+        image: django-app:prod
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: booking-config
+        - secretRef:
+            name: django-secrets
+        - secretRef:
+            name: postgres-credentials
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /reservations/live
+            port: 8000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          #httpHeaders:
+          #- name: Host
+          #  value: localhost
+          httpGet:
+            path: /reservations/ready
+            port: 8000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /app/logs
+          name: logs-volume
+
+      # for logs
+      # TODO: add config to fluent-bit
+      # - name: logs-sidecar
+      #   image: fluent/fluent-bit:5.1
+      #   volumeMounts:
+      #   - mountPath: /var/log/app
+      #     name: logs-volume
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: booking-backend
+  name: booking-backend-service
+spec:
+  selector:
+    app: booking-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: booking-backend-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: booking-backend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 90
+

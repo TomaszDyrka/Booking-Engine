@@ -1,9 +1,10 @@
 import getpass
 import re
+
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.core.validators import validate_email
-from django.contrib.auth import get_user_model
 
 Account = get_user_model()
 
